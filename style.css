@@ -1,0 +1,17 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.floaty {
+    position: fixed;
+    right: 0;
+}
+
+#codeTextArea {
+    height: 50vh;
+    width: calc(100vw - 750px);
+    font-size: 10px;
+    resize: vertical;
+    text-wrap: nowrap;
+}

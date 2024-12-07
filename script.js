@@ -46,6 +46,8 @@ const botMovementTypeColors = {
     "turnToHeading":    "lightblue",
 }
 
+var mouseFieldPos = [0, 0];
+
 function processBotCommands(botCommandsString) {
     botCommands = [];
 
@@ -286,11 +288,18 @@ function runAndDrawBotStates() {
         let colDraw = currentBotState.color;
         push();
         noFill();
-        stroke(colDraw);
         strokeWeight(0.5 * scale);
+        stroke(colDraw);
         translate(xDraw, yDraw);
         rotate(rotDraw);
         rectMode(CENTER);
+
+        if (p == sliderValue - 1) {
+            strokeWeight(scale);
+            stroke(100, 255, 100);
+            fill(100, 255, 100, 100);
+        }
+
         rect(0, 0, botWidth * scale, botLength * scale);
         line(0, 0, 0, - botLength/2 * scale);
         pop();
@@ -329,10 +338,15 @@ function getFieldMousePos() {
 function setup() {
     createCanvas(24 * 6 * scale, 24 * 6 * scale);
     canvas.addEventListener("mousemove", () => {
-        let pos = getFieldMousePos();
-        document.getElementById("mouseFieldX").innerText = pos[0];
-        document.getElementById("mouseFieldY").innerText = pos[1];
-    })
+        mouseFieldPos = getFieldMousePos();
+        document.getElementById("mouseFieldX").innerText = mouseFieldPos[0];
+        document.getElementById("mouseFieldY").innerText = mouseFieldPos[1];
+    });
+    canvas.addEventListener("mousedown", () => {
+        document.getElementById("codeTextArea").value += `\nchassis.moveToPoint(${mouseFieldPos[0]}, ${mouseFieldPos[1]}, 3000); // mouse click added point`;
+        onBtn();
+        onBtn();
+    });
     myDraw();
 
     botAnimation.init();
@@ -361,6 +375,10 @@ setInterval(() => {
 document.addEventListener("DOMContentLoaded", () => {
     allowProcessing = true;
     document.getElementById("codeTextArea").value = sampleCode;
+    if (localStorage.getItem("routecode")) {
+        document.getElementById("codeTextArea").value = localStorage.getItem("routecode");
+        setTimeout(onBtn, 50);
+    }
 });
 
 // window.addEventListener("resize", () => {
@@ -385,6 +403,7 @@ function formatTextArea() {
 
 function onTextAreaInput() {
     onBtn();
+    localStorage.setItem("routecode", document.getElementById("codeTextArea").value);
 }
 
 function onAnimToggle() {

@@ -156,6 +156,10 @@ function process() {
     document.getElementById("statesAmtText").innerText = botStates.length;
 }
 
+function easeOut(x) {
+    return 1 - Math.pow(Math.min(Math.max(0, x), 1) - 1, 2)
+}
+
 var botAnimation = {
     timePerStep: 500,
     get totalTime() {
@@ -188,6 +192,8 @@ var botAnimation = {
         };
 
         let lerpFactor = (botAnimation.time % botAnimation.timePerStep) / botAnimation.timePerStep;
+
+        lerpFactor = easeOut(lerpFactor);
 
         let x = lerpFactor * (statePre.f.x - statePre.i.x) + statePre.i.x;
         let y = lerpFactor * (statePre.f.y - statePre.i.y) + statePre.i.y;

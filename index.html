@@ -16,24 +16,38 @@
 </head>
 <body>
     <div class="floaty">
-        <p>- -</p>
-        <p>+ +</p>
-        <p>width, length</p>
-        <input oninput="botWidth = this.value; myDraw();">, <input oninput="botLength = this.value; myDraw();">
-        <input oninput="botAnimation.timePerStep = this.value" placeholder="timeperstep">
-        <p>x, y: <span id="mouseFieldX">0</span>, <span id="mouseFieldY">0</span></p>
-        <input type="range" min="0" max="20" value="20" id="botPosIndexSlider" oninput="onSliderChange()">
-        <br>
-        <button id="goBtn" onclick="onBtn()">go</button>
-        <button id="formatBtn" onclick="formatTextArea()">format</button>
-        <input type="checkbox" id="animToggle" onchange="onAnimToggle()">
-        <label for="animToggle">animation</label>
-        <p>
-            curr:<span id="currStatesText">0</span>
-            max:<span id="statesAmtText">0</span>
-        </p>
-        <br>
+        <div class="floaty-flex-row">
+            <div>
+                <label for="botWidthInput">width</label>
+                <input id="botWidthInput" oninput="botWidth = this.value; myDraw();" value="16">
+                <br>
+                <label for="botLengthInput">length</label>
+                <input id="botLengthInput" oninput="botLength = this.value; myDraw();" value="17.625">
+            </div>
+            <div>
+                <label for="animToggle">animation:</label>
+                <input type="checkbox" id="animToggle" onchange="onAnimToggle()">
+                <br>
+                <label for="timeperstepinput">time per anim step:</label>
+                <input id="timeperstepinput" oninput="botAnimation.timePerStep = this.value" placeholder="timeperstep">
+            </div>
+            <div>
+                <button id="goBtn" onclick="onBtn()">go</button>
+                <button id="formatBtn" onclick="formatTextArea()">format</button>
+                <input type="range" min="0" max="20" value="20" id="botPosIndexSlider" oninput="onSliderChange()">
+                <p>
+                    curr:<span id="currStatesText">0</span>
+                    max:<span id="statesAmtText">0</span>
+                </p>
+            </div>
+        </div>
         <textarea id="codeTextArea" oninput="onTextAreaInput()"></textarea>
     </div>
+    <p id="mouseFieldXYLabel">
+        <span class="xy-text-label">round: SHIFT,</span>
+        <span class="xy-text-label">add point: ⌥+click</span>
+        <br>
+        x<span id="mouseFieldX">0</span>y<span id="mouseFieldY">0</span>
+    </p>
     </body>
 </html>

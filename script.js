@@ -310,20 +310,11 @@ let allowProcessing = false;
 
 function myDraw() {
     // console.log("drawing route");
-    background(0);
     drawFieldBase();
-    drawFieldBase();
-    if (allowProcessing) {
-        try {
-            process();
-        } catch (error) {
-            console.error("couldn't process", error)
-        }
-        try {
-            runAndDrawBotStates();
-        } catch (error) {
-            console.error("couldn't draw", error)
-        }
+    try {
+        runAndDrawBotStates();
+    } catch (error) {
+        console.error("couldn't draw", error)
     }
 }
 
@@ -337,27 +328,39 @@ function getFieldMousePos() {
 
 function setup() {
     createCanvas(24 * 6 * scale, 24 * 6 * scale);
-    canvas.addEventListener("mousemove", () => {
+    document.addEventListener("mousemove", () => {
         mouseFieldPos = getFieldMousePos();
+        if (keyIsDown(SHIFT)) {
+            mouseFieldPos = [
+                Math.round(mouseFieldPos[0]),
+                Math.round(mouseFieldPos[1])
+            ];
+            document.getElementById("mouseFieldXYLabel").style.outline = "solid 3px black";
+        }
+        else {
+            document.getElementById("mouseFieldXYLabel").style.outline = "";
+        }
         document.getElementById("mouseFieldX").innerText = mouseFieldPos[0];
         document.getElementById("mouseFieldY").innerText = mouseFieldPos[1];
     });
-    canvas.addEventListener("mousedown", () => {
-        document.getElementById("codeTextArea").value += `\nchassis.moveToPoint(${mouseFieldPos[0]}, ${mouseFieldPos[1]}, 3000); // mouse click added point`;
-        onBtn();
-        onBtn();
+    document.addEventListener("mousedown", () => {
+        if (mouseFieldPos[0] >= -72 && mouseFieldPos[0] <= 72 && mouseFieldPos[1] >= -72 && mouseFieldPos[1] <= 72 && keyIsDown(OPTION)) {
+            let textArea = document.getElementById("codeTextArea");
+            textArea.value += `\nchassis.moveToPoint(${mouseFieldPos[0]}, ${mouseFieldPos[1]}, 3000); // mouse click added point`;
+            textArea.focus();
+            onBtn();
+        }
     });
-    myDraw();
-
     botAnimation.init();
 }
 
-setInterval(() => {
+function draw() {
+    myDraw();
     if (document.getElementById("animToggle").checked) {
-        onBtn();
         botAnimation.draw();
     }
-}, 10);
+}
+
 
 // DOM
 
@@ -387,10 +390,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function onSliderChange() {
     document.getElementById("currStatesText").innerText = document.getElementById("botPosIndexSlider").value;
-    myDraw();
 }
 
 function onBtn() {
+    try {
+        process();
+    } catch (error) {
+        console.error("couldn't process", error)
+    }
     document.getElementById("botPosIndexSlider").value = document.getElementById("botPosIndexSlider").getAttribute("max");
     onSliderChange();
 }

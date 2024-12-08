@@ -260,8 +260,10 @@ function drawFieldBase() {
     fill(0, 0, 0, 0);
     rectMode(CENTER);
     rect(0, 0, sqrt(2) * 24 * scale, sqrt(2) * 24 * scale, 1 * scale);
-
     pop();
+
+    tint(255, 255, 255, 127);
+    image(skillsField, 0, 0, 144 * scale, 144 * scale);
 }
 
 function drawFieldElements() {
@@ -325,6 +327,12 @@ function getFieldMousePos() {
 }
 
 // p5
+
+var skillsField;
+
+function preload() {
+    skillsField = loadImage("assets/skills.png");
+}
 
 function setup() {
     createCanvas(24 * 6 * scale, 24 * 6 * scale);

@@ -123,6 +123,10 @@ html, body {
     padding: 0;
 }
 
+.version {
+    font-family: monospace;
+}
+
 canvas {
     max-height: 100vh;
     max-width: 100vh;

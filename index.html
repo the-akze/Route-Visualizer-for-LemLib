@@ -13,28 +13,32 @@
     <script src="script.js"></script>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/icon/favicon.png">
 </head>
 <body>
     <div class="floaty">
         <div class="floaty-flex-row">
             <div>
                 <label for="botWidthInput">width</label>
-                <input id="botWidthInput" oninput="botWidth = this.value; myDraw();" value="16">
+                <input type="number" id="botWidthInput" oninput="botWidth = this.value; myDraw();" value="16">
                 <br>
                 <label for="botLengthInput">length</label>
-                <input id="botLengthInput" oninput="botLength = this.value; myDraw();" value="17.625">
+                <input type="number" id="botLengthInput" oninput="botLength = this.value; myDraw();" value="17.625">
             </div>
             <div>
                 <label for="animToggle">animation:</label>
                 <input type="checkbox" id="animToggle" onchange="onAnimToggle()">
                 <br>
                 <label for="timeperstepinput">time per anim step:</label>
-                <input id="timeperstepinput" oninput="botAnimation.timePerStep = this.value" placeholder="timeperstep">
+                <input type="number" id="timeperstepinput" oninput="botAnimation.timePerStep = this.value" placeholder="timeperstep" value="500">
             </div>
             <div>
                 <button id="goBtn" onclick="onBtn()">go</button>
                 <button id="formatBtn" onclick="formatTextArea()">format</button>
                 <input type="range" min="0" max="20" value="20" id="botPosIndexSlider" oninput="onSliderChange()">
+                <br>
+                <label for="hideRouteToggle">hide route:</label>
+                <input type="checkbox" id="hideRouteToggle" onchange="showRoute = !this.checked;">
                 <p>
                     curr:<span id="currStatesText">0</span>
                     max:<span id="statesAmtText">0</span>
@@ -43,11 +47,19 @@
         </div>
         <textarea id="codeTextArea" oninput="onTextAreaInput()"></textarea>
     </div>
-    <p id="mouseFieldXYLabel">
-        <span class="xy-text-label">round: SHIFT,</span>
-        <span class="xy-text-label">add point: ⌥+click</span>
-        <br>
-        x<span id="mouseFieldX">0</span>y<span id="mouseFieldY">0</span>
-    </p>
+    <div class="fixed-bl-corner-container">
+        <p id="mouseFieldXYLabel">
+            <span class="xy-text-label">round: SHIFT,</span>
+            <span class="xy-text-label">add point: ⌥+click</span>
+            <br>
+            x<span id="mouseFieldX">0</span>y<span id="mouseFieldY">0</span>
+        </p>
+        <p class="credit">
+            Made by Akshat S (the-akze)
+        </p>
+        <a class="social" href="https://github.com/the-akze/Route-Visualizer-for-LemLib" target="_blank">
+            <img src="assets/logos/github.png"/>
+        </a>
+    </div>
     </body>
 </html>

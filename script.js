@@ -2,7 +2,7 @@ const mode_images = {
     "skills": "assets/"
 }
 
-const scale = 4.5;
+const _scale = 4.5;
 
 var botWidth = 16;
 var botLength = 17.625;
@@ -47,6 +47,8 @@ const botMovementTypeColors = {
 }
 
 var mouseFieldPos = [0, 0];
+
+var showRoute = true;
 
 function processBotCommands(botCommandsString) {
     botCommands = [];
@@ -207,7 +209,7 @@ var botAnimation = {
         let state = botAnimation.updateState();
         push();
 
-        strokeWeight(0.5 * scale);
+        strokeWeight(0.5 * _scale);
         stroke(0);
         fill(0, 0, 0, 100);
 
@@ -216,74 +218,206 @@ var botAnimation = {
         rotate(state.theta);
 
         rectMode(CENTER);
-        rect(0, 0, botWidth * scale, botLength * scale);
+        rect(0, 0, botWidth * _scale, botLength * _scale);
 
-        line(0, 0, 0, -botLength/2 * scale);
+        line(0, 0, 0, -botLength/2 * _scale);
 
         pop();
     },
 }
 
-
-function drawFieldBase() {
-    push();
-    noStroke();
-    let x = 0;
-    let fillDark = true;
-    for (x = 0; x < width; x+=24*scale) {
-        for (let y = 0; y < height; y+=24*scale) {
-            fill(fillDark ? 140 : 154);
-            rect(x, y, 24 * scale, 24 * scale);
-            fillDark = !fillDark
-        }
-        fillDark = !fillDark
-    }
-    strokeWeight(4/5 * scale);
-    stroke(255);
-
-    // middle
-    x = (24 * 3) * scale;
-    line(x - 1 * scale, 0, x - 1 * scale, 144 * scale);
-    line(x + 1 * scale, 0, x + 1 * scale, 144 * scale);
-
-    // left
-    line(12 * scale, 0, 12 * scale, 144 * scale); // up down
-    line(12 * scale, 0, 0, 12 * scale); // top slant
-    line(12 * scale, 144 * scale, 0, (144 - 12) * scale); // bottom slant
-
-    // right
-    line((144 - 12) * scale, 0, (144 - 12) * scale, 144 * scale); // up down
-    line((144 - 12) * scale, 0, 144 * scale, 12 * scale); // top slant
-    line(144 * scale, (144 - 12) * scale, (144 - 12) * scale, 144 * scale); // bottom slant
-
-    // ladder
-    stroke("yellow");
-    strokeWeight(2 * scale);
-
-    push();
-    translate(width / 2, height / 2);
-    rotate(45);
-    fill(0, 0, 0, 0);
-    rectMode(CENTER);
-    rect(0, 0, sqrt(2) * 24 * scale, sqrt(2) * 24 * scale, 1 * scale);
-    pop();
-
-    tint(255, 255, 255, 127);
-    image(skillsField, 0, 0, 144 * scale, 144 * scale);
-}
-
-function drawFieldElements() {
-
-}
-
 function fieldPosToCanvasPos(x, y) {
     return {
-        x: (144/2 + x) * scale,
-        y: (144/2 - y) * scale
+        x: (144/2 + x) * _scale,
+        y: (144/2 - y) * _scale
+    }
+}
+
+//TODO: make this function's code less messy
+function drawFieldBase() {
+    push();
+        noStroke();
+        let x = 0;
+        let fillDark = true;
+        for (x = 0; x < width; x+=24*_scale) {
+            for (let y = 0; y < height; y+=24*_scale) {
+                fill(fillDark ? 140 : 154);
+                rect(x, y, 24 * _scale, 24 * _scale);
+                fillDark = !fillDark
+            }
+            fillDark = !fillDark
+        }
+        strokeWeight(4/5 * _scale);
+        stroke(255);
+
+        // middle
+        x = (24 * 3) * _scale;
+        line(x - 1 * _scale, 0, x - 1 * _scale, 144 * _scale);
+        line(x + 1 * _scale, 0, x + 1 * _scale, 144 * _scale);
+
+        // left
+        line(12 * _scale, 0, 12 * _scale, 144 * _scale); // up down
+        line(12 * _scale, 0, 0, 12 * _scale); // top slant
+        line(12 * _scale, 144 * _scale, 0, (144 - 12) * _scale); // bottom slant
+
+        // right
+        line((144 - 12) * _scale, 0, (144 - 12) * _scale, 144 * _scale); // up down
+        line((144 - 12) * _scale, 0, 144 * _scale, 12 * _scale); // top slant
+        line(144 * _scale, (144 - 12) * _scale, (144 - 12) * _scale, 144 * _scale); // bottom slant
+    pop();
+}
+
+var fieldElementsDrawer = {
+    skills: () => {
+        // ladder
+        push();
+            translate(72 * _scale, 72 * _scale);
+            scale(_scale, -_scale);
+            ellipseMode(CENTER);
+            fill(30);
+            noStroke();
+            ellipse(24, 0, 8, 8);
+            ellipse(-24, 0, 8, 8);
+            ellipse(0, 24, 8, 8);
+            ellipse(0, -24, 8, 8);
+        pop();
+
+        stroke("yellow");
+        strokeWeight(2 * _scale);
+
+        push();
+            translate(width / 2, height / 2);
+            rotate(45);
+            noFill();
+            rectMode(CENTER);
+            rect(0, 0, sqrt(2) * 24 * _scale, sqrt(2) * 24 * _scale, 1 * _scale);
+        pop();
+
+
+        // return;
+        push();
+
+            translate(72 * _scale, 72 * _scale);
+
+            noFill();
+            ellipseMode(CENTER);
+            strokeWeight(2);
+
+            let stackDist = 0.5;
+
+            let _stake = (x, y, includeSmallStake=true) => {
+                push();
+                    strokeWeight(2.5/2);
+                    stroke("yellow");
+                    fill("#555555");
+                    translate(x, y);
+                    beginShape();
+                    let vertexDist = 5.13386443749;
+                    for (let i = 0; i <= 360 + 60; i += 60) {
+                        vertex(vertexDist * Math.cos(i * Math.PI / 180), vertexDist * Math.sin(i * Math.PI / 180));
+                    }
+                    endShape();
+                pop();
+                if (includeSmallStake) _smallStake(x, y);
+            }
+
+            let _smallStake = (x, y, color="yellow") => {
+                push();
+                    translate(x, y);
+                    let vertexDist2 = 2.25;
+                    fill(color);
+                    noStroke();
+                    beginShape();
+                    let t = false;
+                    for (let i = 0; i <= 360 + 30; i += 30) {
+                        vertex((t ? 0.5 : 1) * vertexDist2 * Math.cos(i * Math.PI / 180), (t ? 0.5 : 1) * vertexDist2 * Math.sin(i * Math.PI / 180));
+                        t = !t;
+                    }
+                    endShape();
+                pop();
+            }
+
+            let _ = () => {
+                // left side
+                stroke("red");
+                ellipse(-48, 48, 5, 5);
+                ellipse(-60, 48, 5, 5);
+                ellipse(-48, 60, 5, 5);
+                ellipse(-24, 48, 5, 5);
+                ellipse(-24, 24, 5, 5);
+                _stake(-48, 24);
+
+                // right side
+                stroke("red");
+                ellipse(24, 48, 5, 5);
+                ellipse(24, 24, 5, 5);
+
+                stroke("red");
+                ellipse(48, 48 - stackDist, 5, 5);
+                stroke("skyblue");
+                ellipse(48, 48, 5, 5);
+
+                stroke("red");
+                ellipse(48, 60 - stackDist, 5, 5);
+                stroke("skyblue");
+                ellipse(48, 60, 5, 5);
+
+                stroke("red");
+                ellipse(60, 48 - stackDist, 5, 5);
+                stroke("skyblue");
+                ellipse(60, 48, 5, 5);
+
+                ellipse(68.25, 68.25, 5, 5);
+
+                _stake(60, 24, false);
+                ellipse(60, 24, 5, 5);
+                _smallStake(60, 24);
+
+                // middle
+                stroke("red");
+                ellipse(0, 60, 5, 5);
+            }
+
+            push();
+                scale(_scale, -_scale);
+                _();
+            pop();
+
+            push();
+                scale(_scale, _scale);
+                _();
+                _stake(48, 0);
+
+                push();
+                    translate(71, 0);
+                    rotate(30);
+                    _smallStake(0, 0, "skyblue");
+                pop();
+
+                push();
+                    translate(-71, 0);
+                    rotate(30);
+                    _smallStake(0, 0, "red");
+                pop();
+
+                _smallStake(0, 71);
+                _smallStake(0, -71);
+
+                stroke("red");
+                ellipse(0, 0, 5, 5);
+            pop();
+        pop();
+
+        // // draw image
+        // push();
+        //     tint(255, 255, 255, 255/2 + Math.sin(Date.now() / 200) * 255/2);
+        //     image(skillsField, 0, 0, 144 * _scale, 144 * _scale);
+        // pop();
     }
 }
 
 function runAndDrawBotStates() {
+    if (!showRoute) return;
     if (botStates.length == 0) {
         return;
     }
@@ -296,20 +430,20 @@ function runAndDrawBotStates() {
         let colDraw = currentBotState.color;
         push();
         noFill();
-        strokeWeight(0.5 * scale);
+        strokeWeight(0.5 * _scale);
         stroke(colDraw);
         translate(xDraw, yDraw);
         rotate(rotDraw);
         rectMode(CENTER);
 
         if (p == sliderValue - 1) {
-            strokeWeight(scale);
+            strokeWeight(_scale);
             stroke(100, 255, 100);
             fill(100, 255, 100, 100);
         }
 
-        rect(0, 0, botWidth * scale, botLength * scale);
-        line(0, 0, 0, - botLength/2 * scale);
+        rect(0, 0, botWidth * _scale, botLength * _scale);
+        line(0, 0, 0, - botLength/2 * _scale);
         pop();
     }
 }
@@ -319,6 +453,7 @@ let allowProcessing = false;
 function myDraw() {
     // console.log("drawing route");
     drawFieldBase();
+    fieldElementsDrawer.skills();
     try {
         runAndDrawBotStates();
     } catch (error) {
@@ -327,8 +462,8 @@ function myDraw() {
 }
 
 function getFieldMousePos() {
-    let x = Math.round((mouseX / scale - 72) * 100) / 100;
-    let y = Math.round(((144 * scale - mouseY) / scale - 72) * 100) / 100;
+    let x = Math.round((mouseX / _scale - 72) * 100) / 100;
+    let y = Math.round(((144 * _scale - mouseY) / _scale - 72) * 100) / 100;
     return [x, y];
 }
 
@@ -337,13 +472,15 @@ function getFieldMousePos() {
 var skillsField;
 
 function preload() {
-    skillsField = loadImage("assets/skills.png");
+    skillsField = loadImage("assets/vex/skills.png");
 }
 
 function setup() {
-    createCanvas(24 * 6 * scale, 24 * 6 * scale);
+    createCanvas(24 * 6 * _scale, 24 * 6 * _scale);
     document.addEventListener("mousemove", () => {
         mouseFieldPos = getFieldMousePos();
+        let inside = Math.abs(mouseFieldPos[0]) <= 72 && Math.abs(mouseFieldPos[1]) <= 72;
+
         if (keyIsDown(SHIFT)) {
             mouseFieldPos = [
                 Math.round(mouseFieldPos[0]),
@@ -354,8 +491,8 @@ function setup() {
         else {
             document.getElementById("mouseFieldXYLabel").style.outline = "";
         }
-        document.getElementById("mouseFieldX").innerText = mouseFieldPos[0];
-        document.getElementById("mouseFieldY").innerText = mouseFieldPos[1];
+        document.getElementById("mouseFieldX").innerText = inside ? mouseFieldPos[0] : "-";
+        document.getElementById("mouseFieldY").innerText = inside ? mouseFieldPos[1] : "-";
     });
     document.addEventListener("mousedown", () => {
         if (mouseFieldPos[0] >= -72 && mouseFieldPos[0] <= 72 && mouseFieldPos[1] >= -72 && mouseFieldPos[1] <= 72 && keyIsDown(OPTION)) {

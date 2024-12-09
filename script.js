@@ -503,6 +503,7 @@ function setup() {
         }
     });
     botAnimation.init();
+    onBtn();
 }
 
 function draw() {

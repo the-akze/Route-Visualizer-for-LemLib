@@ -95,6 +95,11 @@ html, body {
     font-style: italic;
 }
 
+.disclaimer {
+    font-size: 30%;
+    font-style: normal;
+}
+
 .social {
     display: flex;
     flex-direction: row;
@@ -108,7 +113,7 @@ html, body {
     height: 30px;
 }
 
-.social:hover {
+.social:hover img {
     transform: scale(1.1);
 }
 

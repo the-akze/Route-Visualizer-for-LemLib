@@ -31,7 +31,7 @@
                 <input type="checkbox" id="animToggle" onchange="onAnimToggle()">
                 <br>
                 <label for="timeperstepinput">time per anim step:</label>
-                <input type="number" id="timeperstepinput" oninput="botAnimation.timePerStep = this.value" placeholder="timeperstep" value="500">
+                <input type="number" id="timeperstepinput" oninput="updateTimePerStep(this.value);" placeholder="timeperstep" value="500" min="1">
             </div>
             <div>
                 <button id="goBtn" onclick="onBtn()">go</button>

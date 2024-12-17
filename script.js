@@ -58,6 +58,7 @@ function processBotCommands(botCommandsString) {
         if (i > 500) {
             alert("too big");
         }
+        let originalCommand = botMovementsSplit[i].trim();
         botMovementsSplit[i] = botMovementsSplit[i].trim().replace(";", "").replace("chassis.", "").replace(")", "").split("(");
         if (botMovementsSplit[i].length > 1) {
             botMovementsSplit[i][1] = botMovementsSplit[i][1].split(",");
@@ -86,7 +87,9 @@ function processBotCommands(botCommandsString) {
             let params = command[1];
 
             let newMovement = {
-                type: command[0]
+                type: command[0],
+                index: i,
+                originalCommand
             };
 
             let paramNames = commandTypeParamNames[newMovement.type];
@@ -103,12 +106,19 @@ function processBotCommands(botCommandsString) {
             }
             else {
                 if (showProcessWarnings) {
-                    console.warn("warning: couldn't find matching command param list:", newMovement.type);
+                    console.warn("warning: couldn't find matching command param list:", newMovement.type, originalCommand);
+                }
+                if (originalCommand != "") {
+                    botCommands.push({"unknown": originalCommand, index: i});
                 }
             }
         } else {
             if (showProcessWarnings) {
-                console.warn("warning: command with no params:", botMovementsSplit[i]);
+                console.warn("warning: command with no params:", botMovementsSplit[i], originalCommand);
+            }
+
+            if (originalCommand != "") {
+                botCommands.push({"unknown": originalCommand, index: i});
             }
         }
     }
@@ -120,27 +130,37 @@ function processBotStates() {
     botStates = [];
 
     let botState = {
-        x: 0,
-        y: 0,
-        theta: 0,
-        color: ""
+        x: NaN,
+        y: NaN,
+        theta: NaN,
+        color: "",
+        noDraw: true,
+        index: -1,
     }
 
     for (let c in botCommands) {
         let command = botCommands[c];
-        if (command.type == "turnToPoint") {
-            let yDiff = command.y - botState.y;
-            let xDiff = command.x - botState.x;
-            let angle = 90 - 180 / Math.PI * Math.atan2(yDiff, xDiff);
-            botState.theta = angle;
+        botState.index = command.index;
+        if (command.unknown) {
+            botState.unknown = command.unknown;
         }
         else {
-            for (let i in command) {
-                if (i == "type") {
-                    botState.color = botMovementTypeColors[command[i]];
-                }
-                else {
-                    botState[i] = command[i];
+            botState.noDraw = false;
+            botState.unknown = undefined;
+            if (command.type == "turnToPoint") {
+                let yDiff = command.y - botState.y;
+                let xDiff = command.x - botState.x;
+                let angle = 90 - 180 / Math.PI * Math.atan2(yDiff, xDiff);
+                botState.theta = angle;
+            }
+            else {
+                for (let i in command) {
+                    if (i == "type") {
+                        botState.color = botMovementTypeColors[command[i]];
+                    }
+                    else {
+                        botState[i] = command[i];
+                    }
                 }
             }
         }
@@ -202,25 +222,67 @@ var botAnimation = {
         let theta = lerpFactor * (statePre.f.theta - statePre.i.theta) + statePre.i.theta;
 
 
-        let state = {x, y, theta};
+        let state = {x, y, theta, lerpFactor};
+        if (statePre.i.noDraw || statePre.f.noDraw) {
+            state.noDraw = true;
+        }
+        state.originalCommand = statePre.i.originalCommand;
+        state.nextCommand = statePre.f.originalCommand;
         return state;
     },
     draw: () => {
         let state = botAnimation.updateState();
+        if (!state.noDraw) {
+            push();
+
+            strokeWeight(0.5 * _scale);
+            stroke(0);
+            fill(0, 0, 0, 100);
+
+            let pos = fieldPosToCanvasPos(state.x, state.y);
+            translate(pos.x, pos.y);
+            rotate(state.theta);
+
+            rectMode(CENTER);
+            rect(0, 0, botWidth * _scale, botLength * _scale);
+
+            line(0, 0, 0, -botLength/2 * _scale);
+
+            pop();
+        }
+
+        // draw text
         push();
+        textAlign(LEFT, BASELINE);
+        translate(0, height);
+        noStroke();
 
-        strokeWeight(0.5 * _scale);
-        stroke(0);
-        fill(0, 0, 0, 100);
+        fill(0, 0, 0);
 
-        let pos = fieldPosToCanvasPos(state.x, state.y);
-        translate(pos.x, pos.y);
-        rotate(state.theta);
+        let l = Math.pow(state.lerpFactor, 2);
 
-        rectMode(CENTER);
-        rect(0, 0, botWidth * _scale, botLength * _scale);
+        let smallTextPosI = -10 - 5 * _scale;
+        let smallTextPosF = -10 - 10 * _scale;
+        let smallTextPos = l * (smallTextPosF - smallTextPosI) + smallTextPosI;
 
-        line(0, 0, 0, -botLength/2 * _scale);
+        let bigTextPosI = -10;
+        let bigTextPosF = -10 - 5 * _scale;
+        let bigTextPos = l * (bigTextPosF - bigTextPosI) + bigTextPosI;
+
+        textSize(3 * _scale);
+        textFont("monospace");
+
+        if (state.nextCommand) {
+            push();
+            fill(0, 0, 0, 255 - l * 255);
+            text(state.originalCommand, _scale, smallTextPos);
+            pop();
+
+            text(state.nextCommand, _scale, bigTextPos);
+        }
+        else {
+            text(state.originalCommand, _scale, bigTextPos);
+        }
 
         pop();
     },
@@ -568,4 +630,8 @@ function onTextAreaInput() {
 function onAnimToggle() {
     botAnimation.init();
     onBtn();
+}
+
+function updateTimePerStep(amount) {
+    botAnimation.timePerStep = Math.max(1, amount);
 }

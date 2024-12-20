@@ -8,44 +8,82 @@ html, body {
     padding: 0;
 }
 
+body {
+    height: 100vh;
+    overscroll-behavior-x: none;
+}
+
 .floaty {
     position: fixed;
-    right: 0;
+    left: 0;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    width: 60vw;
-    height: 90vh;
+    align-items: flex-start;
+    max-height: 100%;
     padding: 10px;
-    justify-content: center;
+    margin: 5px;
+    border: solid 1px white;
+    box-shadow: #00000088 0px 0px 10px;
+    border-radius: 10px;
+    z-index: 5;
+    background-color: #00000066;
+    opacity: 0.9;
 }
 
 #codeTextArea {
-    /* height: 50vh; */
-    /* width: 70%; */
-    /* min-width: 400px; */
-    justify-self: right;
-    font-size: 0.625rem;
-    resize: none;
+    display: block;
+
+    max-height: calc(100vh - 200px);
+    max-width: calc(100vw - 300px);
+    min-width: 300px;
+    min-height: 100px;
+
+    font-size: 0.75rem;
+    resize: both;
+    overflow: auto;
     text-wrap: nowrap;
-    background-color: #ffffff88;
-    font-family: "Monaco", monospace;
-    flex-grow: 1;
-    width: 80%;
+
+    padding: 10px;
+
+    outline: none;
     border: solid 0.5px black;
     box-shadow: #00000022 0 0 10px;
     border-radius: 10px;
+    background-color: white;
+
+    filter: brightness(0.95);
+
+    transition: 0s, filter 0.2s, box-shadow 1s;
+}
+
+#codeTextArea:focus {
+    filter: none;
+    outline: solid 3px dodgerblue;
+    /* box-shadow: #00000088 0px 0px 10px 1px; */
+}
+
+pre:has(#codeTextArea) {
+    margin: 0;
+    height: fit-content;
+    padding: 0;
+    background-color: transparent;
+    overflow: visible;
+}
+
+#codeTextArea, #codeTextArea * {
+    font-family: monospace;
 }
 
 .floaty-flex-row {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: right;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
-.floaty-flex-row div {
+.floaty-flex-row div:not(.inside-flex-col):not(.inside-flex-row):not(.nobg) {
     margin: 2px;
     background-color: #ffffff88;
     padding: 3px;
@@ -53,18 +91,45 @@ html, body {
     box-shadow: #00000022 0 0 10px;
 }
 
-.fixed-bl-corner-container {
-    position: fixed;
+.inside-flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.inside-flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.inside-flex-row.spread {
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.nobg {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.info-container {
+    /* position: fixed; */
     bottom: 2px;
     left: 2px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    background-color: #00000088;
+    color: white;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 10px;
 }
 
-.fixed-bl-corner-container>* {
+.info-container>* {
     margin: 5px;
+    z-index: 10;
 }
 
 #mouseFieldXYLabel {
@@ -108,12 +173,12 @@ html, body {
     margin: 4px;
 }
 
-.social img {
-    width: 30px;
-    height: 30px;
+.social ion-icon {
+    font-size: 200%;
+    color: white;
 }
 
-.social:hover img {
+.social:hover ion-icon {
     transform: scale(1.1);
 }
 
@@ -131,6 +196,16 @@ canvas {
     max-height: 100vh;
     max-width: 100vh;
     box-shadow: #00000088 0 0 40px;
+    position: fixed;
+    display: block;
+    right: 0;
+    top: 0;
+    z-index: 1;
+}
+
+canvas:focus {
+    z-index: 8;
+    outline: solid 3px dodgerblue;
 }
 
 button, input {
@@ -147,4 +222,125 @@ input {
 
 button:hover, input:hover {
     outline: solid 1px black;
+}
+
+.botSizeInput, #timeperstepinput {
+    width: 80px;
+    padding: 0;
+}
+
+#hideRouteToggle {
+    display: none;
+}
+
+#hideRouteToggle + label[for=hideRouteToggle] {
+    cursor: pointer;
+
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5px;
+}
+
+#hideRouteToggle + label[for=hideRouteToggle] :hover {
+    transform: scale(1.1);
+    color: blue;
+}
+
+#hideRouteToggle + label[for=hideRouteToggle] ion-icon {
+    font-size: 150%;
+}
+
+#hideRouteToggle:checked + label[for=hideRouteToggle] > ion-icon.on {
+    display: none;
+}
+#hideRouteToggle:checked + label[for=hideRouteToggle] > ion-icon.off {
+    display: inline-block;
+}
+
+#hideRouteToggle:not(:checked) + label[for=hideRouteToggle] > ion-icon.on {
+    display: inline-block;
+}
+#hideRouteToggle:not(:checked) + label[for=hideRouteToggle] > ion-icon.off {
+    display: none;
+}
+
+
+
+#animToggle {
+    display: none;
+}
+
+#animToggle + label[for=animToggle] {
+    cursor: pointer;
+
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5px;
+}
+
+#animToggle + label[for=animToggle] :hover {
+    transform: scale(1.1);
+    color: blue;
+}
+
+#animToggle + label[for=animToggle] ion-icon {
+    font-size: 150%;
+}
+
+#animToggle:checked + label[for=animToggle] > ion-icon.on {
+    display: none;
+}
+#animToggle:checked + label[for=animToggle] > ion-icon.off {
+    display: inline-block;
+}
+
+#animToggle:not(:checked) + label[for=animToggle] > ion-icon.on {
+    display: inline-block;
+}
+#animToggle:not(:checked) + label[for=animToggle] > ion-icon.off {
+    display: none;
+}
+
+.anim-progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #ffffff55;
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+    cursor: ew-resize;
+}
+
+.anim-progress-bar .progress {
+    margin: 0;
+    background-color: #2067ff;
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    transition: none;
+}
+
+.anim-progress-label {
+    margin: 0;
+    padding: 0;
+    font-size: 50%;
+    text-align: center;
+}
+
+#animShiftBtnsContainer button {
+    padding: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    height: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+#animShiftBtnsContainer ion-icon {
+    font-size: 80%;
 }

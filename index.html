@@ -15,54 +15,95 @@
 
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="assets/icon/favicon.png">
+
+    <link href="libraries/prismjs/prism_default.css" rel="stylesheet"/>
 </head>
 <body>
-    <div class="floaty">
+    <div class="floaty" id="controlpanel">
         <div class="floaty-flex-row">
             <div>
-                <label for="botWidthInput">width</label>
-                <input type="number" id="botWidthInput" oninput="botWidth = this.value; myDraw();" value="16">
+                <button id="goBtn" onclick="onBtn()">Update<br><span style="font-size: 80%;">⌘enter / ^enter</span></button>
+                <label for="botPosIndexSlider">showing <span id="currStatesText">0</span>/<span id="statesAmtText">0</span></label>
                 <br>
-                <label for="botLengthInput">length</label>
-                <input type="number" id="botLengthInput" oninput="botLength = this.value; myDraw();" value="17.625">
-            </div>
-            <div>
-                <label for="animToggle">animation:</label>
-                <input type="checkbox" id="animToggle" onchange="onAnimToggle()">
-                <br>
-                <label for="timeperstepinput">time per anim step:</label>
-                <input type="number" id="timeperstepinput" oninput="updateTimePerStep(this.value);" placeholder="timeperstep" value="500" min="1">
-            </div>
-            <div>
-                <button id="goBtn" onclick="onBtn()">go</button>
-                <button id="formatBtn" onclick="formatTextArea()">format</button>
                 <input type="range" min="0" max="20" value="20" id="botPosIndexSlider" oninput="onSliderChange()">
-                <br>
-                <label for="hideRouteToggle">hide route:</label>
                 <input type="checkbox" id="hideRouteToggle" onchange="showRoute = !this.checked;">
-                <p>
-                    curr:<span id="currStatesText">0</span>
-                    max:<span id="statesAmtText">0</span>
-                </p>
+                <label for="hideRouteToggle">
+                    <ion-icon class="on" name="eye-outline"></ion-icon>
+                    <ion-icon class="off" name="eye-off-outline"></ion-icon>
+                </label>
             </div>
+            <div class="inside-flex-col">
+                <div>
+                    <label for="botWidthInput">Size: w</label>
+                    <input type="number" id="botWidthInput" class="botSizeInput" oninput="botWidth = this.value; myDraw();" value="16">
+                    <label for="botWidthInput">h</label>
+                    <input type="number" id="botLengthInput" class="botSizeInput" oninput="botLength = this.value; myDraw();" value="17.625">
+                </div>
+                <div>
+                    <label for="timeperstepinput"><span style="font-size: 50%;">Animation Step Time:</span></label>
+                    <input type="number" id="timeperstepinput" oninput="updateTimePerStep(this.value);" placeholder="timeperstep" value="500" min="1">
+                </div>
+            </div>
+
+            <div class="inside-flex-col" style="width: 5px;"></div>
+
+            <button id="formatBtn" onclick="formatTextArea()">Format</button>
+
+            <div class="inside-flex-col" style="width: 5px;"></div>
+
+            <div class="inside-flex-col">
+                <div class="nobg" id="progress-indicators-container">
+                    <p class="anim-progress-label">
+                        <span id="anim-progress-numerator"></span>
+                        /
+                        <span id="anim-progress-denominator"></span>
+                    </p>
+                    <div class="nobg anim-progress-bar" id="animProgressBar">
+                        <div class="nobg progress"></div>
+                    </div>
+                </div>
+                <div>
+                    <input type="checkbox" id="animToggle" onchange="onAnimToggle()">
+                    <label for="animToggle">
+                        <ion-icon class="off" name="stop"></ion-icon>
+                        <ion-icon class="on" name="play"></ion-icon>
+                    </label>
+                </div>
+                <div class="inside-flex-row spread" id="animShiftBtnsContainer">
+                    <button onclick="botAnimation.shiftTime(1)"><ion-icon name="play-back"></ion-icon></button>
+                    <button onclick="botAnimation.shiftTime(-1)"><ion-icon name="play-forward"></ion-icon></button>
+                </div>
+            </div>
+
+            <div class="inside-flex-col" style="width: 10px;"></div>
+
+            <button onclick="swapEditorSides()" style="font-size: 200%;"><ion-icon name="swap-horizontal"></ion-icon></button>
         </div>
-        <textarea id="codeTextArea" oninput="onTextAreaInput()"></textarea>
+        <pre><code class="language-cpp" id="codeTextArea" oninput="onTextAreaInput()"></code></pre>
+        <div class="inside-flex-row spread">
+            <div class="info-container">
+                <p class="credit">
+                    Made by Akshat S (the-akze)<br>
+                    <span class="disclaimer">not affiliated with VEX, LemLib, or PROS</span>
+                </p>
+                <a class="social" href="https://github.com/the-akze/Route-Visualizer-for-LemLib" target="_blank">
+                    <ion-icon name="logo-github"></ion-icon>
+                </a>
+                <p class="version" id="version-text"></p>
+            </div>
+
+            <p id="mouseFieldXYLabel">
+                <span class="xy-text-label">round: SHIFT,</span>
+                <span class="xy-text-label">add point: ⌥+click</span>
+                <br>
+                x<span id="mouseFieldX">0</span>y<span id="mouseFieldY">0</span>
+            </p>
+        </div>
     </div>
-    <div class="fixed-bl-corner-container">
-        <p id="mouseFieldXYLabel">
-            <span class="xy-text-label">round: SHIFT,</span>
-            <span class="xy-text-label">add point: ⌥+click</span>
-            <br>
-            x<span id="mouseFieldX">0</span>y<span id="mouseFieldY">0</span>
-        </p>
-        <p class="credit">
-            Made by Akshat S (the-akze)<br>
-            <span class="disclaimer">not affiliated with VEX, LemLib, or PROS</span>
-        </p>
-        <a class="social" href="https://github.com/the-akze/Route-Visualizer-for-LemLib" target="_blank">
-            <img src="assets/logos/github.png"/>
-        </a>
-        <p class="version" id="version-text"></p>
-    </div>
+
+    <script src="libraries/prismjs/prism.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
     </body>
 </html>

@@ -171,7 +171,7 @@ function processBotStates() {
 }
 
 function process() {
-    let codeTextAreaValue = document.getElementById("codeTextArea").value;
+    let codeTextAreaValue = getTypedCode();
     processBotCommands(codeTextAreaValue);
     processBotStates();
     document.getElementById("botPosIndexSlider").setAttribute("max", botStates.length);
@@ -191,8 +191,22 @@ var botAnimation = {
     get time() {
         return Date.now() - botAnimation.startTime;
     },
-    init: () => {
+    init: (progress = undefined) => {
         botAnimation.startTime = Date.now();
+        if (progress != undefined) {
+            botAnimation.processAndSetProgress(progress);
+        }
+    },
+    shiftTime: t => {
+        botAnimation.startTime = Math.min(botAnimation.startTime + 1000 * t, Date.now());
+    },
+    processAndSetProgress: (progress) => {
+        let now = Date.now();
+        let timePer = botAnimation.timePerStep;
+
+        let newTime = Math.round(now - timePer * progress * botStates.length);
+
+        botAnimation.startTime = newTime;
     },
     updateState() {
         if (!botStates.length) {
@@ -286,6 +300,20 @@ var botAnimation = {
 
         pop();
     },
+    updateProgressElements: (visible) => {
+        if (visible) {
+            document.getElementById("progress-indicators-container").style.display = "block";
+
+            let proportion = botAnimation.time / botAnimation.totalTime;
+            document.querySelector(".anim-progress-bar .progress").style.width = `${proportion*100}%`
+            let stateIndex = Math.floor(botAnimation.time / botAnimation.timePerStep);
+            document.getElementById("anim-progress-numerator").innerText = stateIndex;
+            document.getElementById("anim-progress-denominator").innerText = botStates.length;
+        }
+        else {
+            // document.getElementById("progress-indicators-container").style.display = "none";
+        }
+    }
 }
 
 function fieldPosToCanvasPos(x, y) {
@@ -558,10 +586,9 @@ function setup() {
     });
     document.addEventListener("mousedown", () => {
         if (mouseFieldPos[0] >= -72 && mouseFieldPos[0] <= 72 && mouseFieldPos[1] >= -72 && mouseFieldPos[1] <= 72 && keyIsDown(OPTION)) {
-            let textArea = document.getElementById("codeTextArea");
-            textArea.value += `\nchassis.moveToPoint(${mouseFieldPos[0]}, ${mouseFieldPos[1]}, 3000); // mouse click added point`;
-            textArea.focus();
+            setTypedCode(getTypedCode() + `\nchassis.moveToPoint(${mouseFieldPos[0]}, ${mouseFieldPos[1]}, 3000); // mouse click added point`);
             onBtn();
+            document.getElementById("#codeTextArea").focus();
         }
     });
     botAnimation.init();
@@ -572,6 +599,10 @@ function draw() {
     myDraw();
     if (document.getElementById("animToggle").checked) {
         botAnimation.draw();
+        botAnimation.updateProgressElements(true);
+    }
+    else {
+        botAnimation.updateProgressElements(false);
     }
 }
 
@@ -589,14 +620,70 @@ function draw() {
 //     else { createCanvas(24 * 6 * scale, 24 * 6 * scale); }
 // }
 
+function getTypedCode() {
+    return document.getElementById("codeTextArea").innerText;
+}
+
+function setTypedCode(c) {
+    document.getElementById("codeTextArea").innerHTML = c;
+    Prism.highlightAll();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     allowProcessing = true;
-    document.getElementById("codeTextArea").value = sampleCode;
+    setTypedCode(sampleCode);
     if (localStorage.getItem("routecode")) {
-        document.getElementById("codeTextArea").value = localStorage.getItem("routecode");
+        setTypedCode(localStorage.getItem("routecode"));
         setTimeout(onBtn, 50);
     }
+
+    document.getElementById("codeTextArea").contentEditable = true;
+
+    let progressBar = document.getElementById("animProgressBar");
+
+    let updateAnimBtn = val => {
+        document.getElementById("animToggle").checked = val;
+    }
+
+    let progressBarUpdate = ev => {
+        if (mouseIsPressed) {
+            const rect = ev.currentTarget.getBoundingClientRect();
+            let x = (ev.clientX - rect.x) / rect.width;
+            x = Math.max(0, Math.min(1, x));
+            botAnimation.init(x);
+            updateAnimBtn(true);
+        }
+    }
+    progressBar.addEventListener("mousemove", progressBarUpdate);
+    progressBar.addEventListener("mousedown", progressBarUpdate);
+    progressBar.addEventListener("wheel", ev => {
+        let scrollAmt = Math.pow(ev.deltaX-ev.deltaY, 3) / 10000;
+        const maxMag = 5;
+        scrollAmt = Math.min(maxMag, Math.max(scrollAmt, -maxMag));
+        botAnimation.shiftTime(scrollAmt);
+        updateAnimBtn(true);
+    });
 });
+
+document.addEventListener("keydown", ev => {
+    let t = document.getElementById("codeTextArea");
+    let c = document.querySelector("canvas");
+    switch (ev.key) {
+        case "/":
+            setTimeout(() => {t.focus()}, 50); // without timeout, it types the slash, which is unwanted
+            break;
+        case "Escape":
+            c.focus();
+            break;
+        case "Enter":
+            if (keyIsDown(91) || keyIsDown(17)) {
+                onBtn();
+            }
+            break;
+        default:
+            break;
+    }
+})
 
 // window.addEventListener("resize", () => {
 //     // onResize();
@@ -606,32 +693,51 @@ function onSliderChange() {
     document.getElementById("currStatesText").innerText = document.getElementById("botPosIndexSlider").value;
 }
 
-function onBtn() {
+function onBtn(doNotResetSlider = false) {
     try {
         process();
     } catch (error) {
         console.error("couldn't process", error)
     }
-    document.getElementById("botPosIndexSlider").value = document.getElementById("botPosIndexSlider").getAttribute("max");
+    if (!doNotResetSlider) document.getElementById("botPosIndexSlider").value = document.getElementById("botPosIndexSlider").getAttribute("max");
     onSliderChange();
 }
 
-function formatTextArea() {
-    let currentText = document.getElementById("codeTextArea").value;
-    currentText = currentText.split("\n").map(value => value.trim()).join("\n");
-    document.getElementById("codeTextArea").value = currentText;
+function onTextAreaInput() {
+    onBtn(true);
+    localStorage.setItem("routecode", getTypedCode());
 }
 
-function onTextAreaInput() {
-    onBtn();
-    localStorage.setItem("routecode", document.getElementById("codeTextArea").value);
+
+function formatTextArea() {
+    let currentText = getTypedCode();
+    currentText = currentText.split("\n").map(value => value.trim()).join("\n");
+    setTypedCode(currentText);
+    onTextAreaInput();
 }
 
 function onAnimToggle() {
     botAnimation.init();
-    onBtn();
+    onBtn(true);
 }
 
 function updateTimePerStep(amount) {
     botAnimation.timePerStep = Math.max(1, amount);
+}
+
+var swapped = false;
+
+function swapEditorSides() {
+    swapped = !swapped;
+
+    if (swapped) {
+        document.getElementById("controlpanel").style.left = "unset";
+        document.getElementById("controlpanel").style.right = "2px";
+        document.querySelector("canvas").style.left = "0";
+    }
+    else {
+        document.getElementById("controlpanel").style.left = "";
+        document.getElementById("controlpanel").style.right = "";
+        document.querySelector("canvas").style.left = "";
+    }
 }

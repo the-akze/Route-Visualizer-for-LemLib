@@ -13,6 +13,8 @@ var botStates = [];
 
 var showProcessWarnings = false;
 
+var imgOver = "";
+
 /*
 all possible:
 
@@ -544,6 +546,9 @@ function myDraw() {
     // console.log("drawing route");
     drawFieldBase();
     fieldElementsDrawer.skills();
+    if (imgOver) {
+        image(imgOver, 0, 0, width, height);
+    }
     try {
         runAndDrawBotStates();
     } catch (error) {

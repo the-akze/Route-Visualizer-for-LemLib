@@ -15,6 +15,11 @@ var showProcessWarnings = false;
 
 var imgOver = "";
 
+var showSkillsField = false;
+var showMatchField = false;
+
+var matchField;
+
 /*
 all possible:
 
@@ -549,6 +554,12 @@ function myDraw() {
     if (imgOver) {
         image(imgOver, 0, 0, width, height);
     }
+    if (showSkillsField) {
+        image(skillsField, 0, 0, width, height);
+    }
+    if (showMatchField) {
+        image(matchField, 0, 0, width, height);
+    }
     try {
         runAndDrawBotStates();
     } catch (error) {
@@ -568,6 +579,7 @@ var skillsField;
 
 function preload() {
     skillsField = loadImage("assets/vex/skills.png");
+    matchField = loadImage("assets/vex/match.jpeg");
 }
 
 function setup() {

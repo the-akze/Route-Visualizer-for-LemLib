@@ -613,8 +613,26 @@ function setup() {
             document.getElementById("#codeTextArea").focus();
         }
     });
+    document.addEventListener("keydown", function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+            event.preventDefault();
+            saveCodeToFile();
+        }
+    });
     botAnimation.init();
     onBtn();
+}
+
+function saveCodeToFile() {
+    const textContent = "// Visualized with the-akze.github.io/Route-Visualizer-for-LemLib\n" + getTypedCode();
+    const blob = new Blob([textContent], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    let d = new Date();
+    link.download = `auton-route-${d.getFullYear()}-${d.getMonth()}-${d.getDate()}--${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function draw() {

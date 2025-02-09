@@ -224,6 +224,10 @@ button:hover, input:hover {
     outline: solid 1px black;
 }
 
+button {
+    margin: 1px;
+}
+
 .botSizeInput, #timeperstepinput {
     width: 80px;
     padding: 0;

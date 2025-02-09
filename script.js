@@ -15,8 +15,7 @@ var showProcessWarnings = false;
 
 var imgOver = "";
 
-var showSkillsField = false;
-var showMatchField = false;
+var currentDrawField = "skills";
 
 var matchField;
 
@@ -548,17 +547,22 @@ function runAndDrawBotStates() {
 let allowProcessing = false;
 
 function myDraw() {
-    // console.log("drawing route");
     drawFieldBase();
-    fieldElementsDrawer.skills();
+    switch (currentDrawField) {
+        case "skills":
+            fieldElementsDrawer.skills();
+            break;
+        case "match img":
+            image(matchField, 0, 0, width, height);
+            break;
+        case "skills img":
+            image(skillsField, 0, 0, width, height);
+            break;
+        default:
+            break;
+    }
     if (imgOver) {
         image(imgOver, 0, 0, width, height);
-    }
-    if (showSkillsField) {
-        image(skillsField, 0, 0, width, height);
-    }
-    if (showMatchField) {
-        image(matchField, 0, 0, width, height);
     }
     try {
         runAndDrawBotStates();
@@ -584,6 +588,7 @@ function preload() {
 
 function setup() {
     createCanvas(24 * 6 * _scale, 24 * 6 * _scale);
+    angleMode(DEGREES);
     document.addEventListener("mousemove", () => {
         mouseFieldPos = getFieldMousePos();
         let inside = Math.abs(mouseFieldPos[0]) <= 72 && Math.abs(mouseFieldPos[1]) <= 72;

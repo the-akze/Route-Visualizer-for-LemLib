@@ -6,8 +6,6 @@
     <title>Auton Route Visualizer for LemLib • Made by Akshat S (the-akze)</title>
 
     <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
-    <script src="https://p5play.org/v3/planck.min.js"></script>
-    <script src="https://p5play.org/v3/p5play.js"></script>
     <script src="samplecode.js"></script>
     <script src="script.js"></script>
     <script src="version.js"></script>
@@ -41,6 +39,13 @@
                 <div>
                     <label for="timeperstepinput"><span style="font-size: 50%;">Animation Step Time:</span></label>
                     <input type="number" id="timeperstepinput" oninput="updateTimePerStep(this.value);" placeholder="timeperstep" value="500" min="1">
+                </div>
+                <div>
+                    <label for="fieldselect"><span style="font-size: 50%;">Field:</span></label>
+                    <select onchange="currentDrawField = this.value">
+                        <option value="skills">Skills</option>
+                        <option value="match img">Match</option>
+                    </select>
                 </div>
             </div>
 

@@ -348,3 +348,30 @@ button {
 #animShiftBtnsContainer ion-icon {
     font-size: 80%;
 }
+
+.mobile-popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    margin: 0;
+    z-index: 50;
+    border-radius: 20px;
+    background-color: #00000088;
+    backdrop-filter: blur(4px);
+    max-width: 100vw;
+    max-height: 100vh;
+    width: fit-content;
+    overflow-y: auto;
+    color: #dddddd;
+    box-shadow: #000000 0px 0px 20px;
+    border: solid 1px #dddddd88;
+    transition: top 1s, transform 0.3s ease-in-out, filter 0.2s ease-in-out;
+}
+
+.mobile-popup button {
+    padding: 5px;
+    font-size: 100%;
+}
